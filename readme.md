@@ -47,35 +47,50 @@ Function Reference
 ------------------
 All functions are prefixed with "sc_" as a way of avoiding namespace collision. This list include only functions you might want to call in your sanitycheck.cfm.
 
-**sc_CFVersion(requiredVersion)** - Specify the minimum or exact required version of ColdFusion. requiredVersion must be one or more digits and dots, optionally followed by a plus.
+**sc_CFVersion(requiredVersion)**
+> Specify the minimum or exact required version of ColdFusion. requiredVersion must be one or more digits and dots, optionally followed by a plus.
 
-**sc_datasourceExists(datasourceName)** - Ensure that a datasource is defined.
+**sc_datasourceExists(datasourceName)**
+> Ensure that a datasource is defined.
 
-**sc_defaultSMTPServerDefined()** - Ensure that ColdFusion has a default SMTP server (useful if your app doesn't specify one).
+**sc_defaultSMTPServerDefined()**
+> Ensure that ColdFusion has a default SMTP server (useful if your app doesn't specify one).
 
-**sc_directoryExists(dirName)** - Ensure that a directory exists. *dirName* must be a full path appropriate for the current platform. You can use expandPath() in your call to this (and other file/directory functions) for portability.
+**sc_directoryExists(dirName)**
+> Ensure that a directory exists. *dirName* must be a full path appropriate for the current platform. You can use expandPath() in your call to this (and other file/directory functions) for portability.
 
-**sc_dirIsWritable(dir)** - Checks to see if a directory is writable. *dir* is a fully-qualified directory path.
+**sc_dirIsWritable(dir)**
+> Checks to see if a directory is writable. *dir* is a fully-qualified directory path.
 
-**sc_executableExists(fullPath, args, timeout)** - Ensure that an executable program can be called. *fullPath* is the fully-qualified path to the executable. The optional *args* is arguments to make executable exit quickly (e.g. '-c exit' for bash). The optional *timeout* is in seconds.
+**sc_executableExists(fullPath, args, timeout)**
+> Ensure that an executable program can be called. *fullPath* is the fully-qualified path to the executable. The optional *args* is arguments to make executable exit quickly (e.g. '-c exit' for bash). The optional *timeout* is in seconds.
 
-**sc_fileExists(fileName)** - Ensure that a file exists. Useful for config files that aren't kept in source control. *fileName* is a fully-qualified path.
+**sc_fileExists(fileName)**
+> Ensure that a file exists. Useful for config files that aren't kept in source control. *fileName* is a fully-qualified path.
 
-**sc_fileIsWritable(file)** - Checks to see if a file is writable by appending an empty string to it if it exists, or by checking the dir for writability if it doesn't. *file* is a fully-qualified file path.
+**sc_fileIsWritable(file)**
+> Checks to see if a file is writable by appending an empty string to it if it exists, or by checking the dir for writability if it doesn't. *file* is a fully-qualified file path.
 
-**sc_mappingExists(mappingName)** - Ensure that a mapping is defined. *mappingName* is just what it says. This function is a little buggy. We highly recommend using application-specific mappings (defined in your Application.cfc) instead of system-wide ones, but that's only available in CF8 and up.
+**sc_mappingExists(mappingName)**
+> Ensure that a mapping is defined. *mappingName* is just what it says. This function is a little buggy. We highly recommend using application-specific mappings (defined in your Application.cfc) instead of system-wide ones, but that's only available in CF8 and up.
 
-**sc_scheduledTaskExists(taskURL, useHTTPS)** - Ensure that a scheduled task exists. *taskURL* is a root-relative URL for the task to be executed. The optional *useHTTPS* is a boolean that you should turn on if your app requires SSL.
+**sc_scheduledTaskExists(taskURL, useHTTPS)**
+> Ensure that a scheduled task exists. *taskURL* is a root-relative URL for the task to be executed. The optional *useHTTPS* is a boolean that you should turn on if your app requires SSL.
 
-**sc_setPassword(pwd)** - Sets the access password for running the script interactively. *pwd* is the password.
+**sc_setPassword(pwd)**
+> Sets the access password for running the script interactively. *pwd* is the password.
 
-**sc_siteHasSSL()** - Ensure that SSL is set up for your site.
+**sc_siteHasSSL()**
+> Ensure that SSL is set up for your site.
 
-**sc_tableExists(datasourceName, tableName)** - Check to see if a table *tableName* exists in datasource *datasourceName*. Can be used as a rudimentary check of whether the database schema's been loaded.
+**sc_tableExists(datasourceName, tableName)**
+> Check to see if a table *tableName* exists in datasource *datasourceName*. Can be used as a rudimentary check of whether the database schema's been loaded.
 
-**sc_urlOK(theURL, useHTTPS)** - Ensure that a '200 OK' status code is returned for the root-relative URL *theURL*. This can be used to check whether a webserver-based rewrite/redirect is in place. The optional *useHTTPS* is a boolean that you should turn on if your app requires SSL.
+**sc_urlOK(theURL, useHTTPS)**
+> Ensure that a '200 OK' status code is returned for the root-relative URL *theURL*. This can be used to check whether a webserver-based rewrite/redirect is in place. The optional *useHTTPS* is a boolean that you should turn on if your app requires SSL.
 
-**sc_verityCollectionExists(collectionName)** - Ensure that the Verity collection *collectionName* is defined.
+**sc_verityCollectionExists(collectionName)**
+> Ensure that the Verity collection *collectionName* is defined.
 
 Pulling in sanitycheck with git submodule
 -----------------------------------------
@@ -91,5 +106,5 @@ Pulling in sanitycheck with svn:externals
     svn add sanitycheck
     cd sanitycheck
     svn propset svn:externals "sanitycheck http://svn.github.com/singlebrook/sanitycheck.git" .
-    svn commit # I can't seem to update successfully without commiting first
+    svn commit # I can't seem to update successfully without committing first
     svn update
