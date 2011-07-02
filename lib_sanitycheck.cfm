@@ -48,7 +48,8 @@
 </cffunction> <!--- sc_init --->
 
 
-<cffunction name="sc_CFVersion" returntype="void" output="yes" access="public">
+<cffunction name="sc_CFVersion" returntype="void" output="yes" access="public"
+		hint="Specify the minimum or exact required version of ColdFusion">
 	<cfargument name="requiredVersion" type="string" required="yes">
 	<cfset var v = structNew()>
 	
@@ -79,7 +80,8 @@
 
 
 
-<cffunction name="sc_datasourceExists" returntype="void" output="yes" access="public">
+<cffunction name="sc_datasourceExists" returntype="void" output="yes" access="public"
+		hint="Ensure that a datasource is defined.">
 	<cfargument name="datasourceName" type="string" required="yes">
 	<cfset var v = structNew()>
 	
@@ -107,7 +109,8 @@
 
 
 
-<cffunction name="sc_defaultSMTPServerDefined" returntype="void" output="yes" access="public">
+<cffunction name="sc_defaultSMTPServerDefined" returntype="void" output="yes" access="public"
+		hint="Ensure that ColdFusion has a default SMTP server (useful if your app doesn't specify one).">
 	<cfset var v = structNew()>
 
 	
@@ -131,8 +134,9 @@
 </cffunction> <!--- sc_defaultSMTPServerDefined --->
 
 
-<cffunction name="sc_directoryExists" returntype="void" output="yes" access="public">
-	<cfargument name="dirName" type="string" required="yes">
+<cffunction name="sc_directoryExists" returntype="void" output="yes" access="public"
+		"Ensure that a directory exists">
+	<cfargument name="dirName" type="string" required="yes" hint="must be a full path appropriate for the current platform">
 	<cfset var v = structNew()>
 
 	<cftry>
@@ -204,10 +208,11 @@
 </cffunction> <!--- sc_dirIsWritable --->
 
 
-<cffunction name="sc_executableExists" returntype="void" output="yes" access="public">
-	<cfargument name="fullPath" type="string" required="yes" />
+<cffunction name="sc_executableExists" returntype="void" output="yes" access="public"
+		hint="Ensure that an executable program can be called.">
+	<cfargument name="fullPath" type="string" required="yes" hint="the fully-qualified path to the executable" />
 	<cfargument name="args" type="string" required="no" default="Arguments to make executable exit quickly (e.g. '-c exit' for bash)" />
-	<cfargument name="timeout" type="numeric" required="no" default="5" />
+	<cfargument name="timeout" type="numeric" required="no" default="5" hint="in seconds" />
 	<cfset var v = structNew() />
 	
 	<cftry>
@@ -232,8 +237,9 @@
 </cffunction> <!--- sc_fileExists --->
 
 
-<cffunction name="sc_fileExists" returntype="void" output="yes" access="public">
-	<cfargument name="fileName" type="string" required="yes">
+<cffunction name="sc_fileExists" returntype="void" output="yes" access="public"
+		hint="Ensure that a file exists. Useful for config files that aren't kept in source control.">
+	<cfargument name="fileName" type="string" required="yes" hint="a fully-qualified path" />
 	<cfset var v = structNew()>
 	
 	<cfif fileExists(fileName)>
@@ -341,7 +347,10 @@
 	appended to the document root. I can't figure out how to programmatically determine what the
 	MTH is, so I'm sure how to check for this condition. The symptom of the bug is that this 
 	function passes even if the mapping doesn't exist. - leon --->
-<cffunction name="sc_mappingExists" returntype="void" output="yes" access="public">
+<cffunction name="sc_mappingExists" returntype="void" output="yes" access="public"
+		hint="Ensure that a mapping is defined. This function is a little buggy. We highly recommend
+		using application-specific mappings (defined in your Application.cfc) instead of system-wide
+		ones, but that's only available in CF8 and up.">
 	<cfargument name="mappingName" type="string" required="yes">
 	<cfset var v = structNew()>
 
@@ -380,7 +389,8 @@
 </cffunction> <!--- sc_mappingExists --->
 	
 
-<cffunction name="sc_scheduledTaskExists" returntype="void" output="yes" access="public">
+<cffunction name="sc_scheduledTaskExists" returntype="void" output="yes" access="public"
+		hint="Ensure that a scheduled task exists.">
 	<cfargument name="taskURL" type="string" required="yes" hint="A root-relative URL for the task to be executed">
 	<cfargument name="useHTTPS" type="boolean" required="no" default="no" hint="Turn on only if site requires SSL">
 	
@@ -407,7 +417,7 @@
 
 
 <cffunction name="sc_setPassword" returntype="void" output="no" access="public"
-		hint="Sets the password for running script interactively">
+		hint="Sets the access password for running the script interactively">
 	<cfargument name="pwd" type="string" required="yes">
 	<cfset var v = structNew()>
 	
@@ -416,7 +426,8 @@
 </cffunction> <!--- sc_setPassword --->
 
 
-<cffunction name="sc_siteHasSSL" returntype="void" output="yes" access="public">
+<cffunction name="sc_siteHasSSL" returntype="void" output="yes" access="public"
+		hint="Ensure that SSL is set up for your site.">
 
 	<cfset var cfhttp = "">
 
@@ -439,7 +450,9 @@
 
 
 
-<cffunction name="sc_tableExists" returntype="void" output="yes" access="public">
+<cffunction name="sc_tableExists" returntype="void" output="yes" access="public"
+		hint="Check to see if a table exists in a datasource. Can be used as a rudimentary check of
+		whether the database schema's been loaded.">
 	<cfargument name="datasourceName" type="string" required="yes">
 	<cfargument name="tableName" type="string" required="yes">
 	<cfset var v = structNew()>
@@ -492,7 +505,7 @@
 	
 
 <cffunction name="sc_urlOK" returntype="void" output="yes" access="public"
-		hint="Tests whether a '200 OK' status code is returned for a given root-relative URL.
+		hint="Ensure that a '200 OK' status code is returned for a given root-relative URL.
 			This can be used to check whether a webserver-based rewrite/redirect is in place.">
 
 	<cfargument name="theURL" type="string" required="yes" hint="A root-relative URL">
@@ -526,7 +539,8 @@
 
 
 
-<cffunction name="sc_verityCollectionExists" returntype="void" output="yes" access="public">
+<cffunction name="sc_verityCollectionExists" returntype="void" output="yes" access="public"
+		hint="Ensure that a Verity collection is defined.">
 	<cfargument name="collectionName" type="string" required="yes">
 	<cfset var rsCollections = "">
 
