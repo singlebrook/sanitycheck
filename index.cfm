@@ -1,0 +1,1 @@
+<cflocation url="sanitycheck.cfm" addtoken="no">
