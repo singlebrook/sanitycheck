@@ -112,13 +112,23 @@ Updating to the latest sanitycheck:
 
     cd your-git-project/sanitycheck/sanitycheck
     git pull
+    cd your-git-project
+    git ci sanitycheck/sanitycheck -m "Updated sanitycheck submodule"
 
 Pulling in sanitycheck with svn:externals
 -----------------------------------------
+
+Adding a sanitycheck external:
+
     cd your-svn-project
     mkdir sanitycheck
     svn add sanitycheck
     cd sanitycheck
     svn propset svn:externals "sanitycheck http://svn.github.com/singlebrook/sanitycheck.git" .
     svn commit # I can't seem to update successfully without committing first
+    svn update
+
+Updating to the latest sanitycheck:
+
+    cd your-svn-project
     svn update
