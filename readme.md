@@ -94,10 +94,24 @@ All functions are prefixed with "sc_" as a way of avoiding namespace collision. 
 
 Pulling in sanitycheck with git submodule
 -----------------------------------------
+**Note:** If you're replacing a non-submodule directory with a submodule, you should remove the former **on all branches** before adding the latter.
+
+Adding a sanitycheck submodule:
+
     cd your-git-project
-    mkdir sanitycheck
-    git add sanitycheck
     git submodule add git://github.com/singlebrook/sanitycheck.git sanitycheck/sanitycheck
+    git commit -m "Added sanitycheck submodule"
+
+Updating a sanitycheck submodule after cloning:
+
+    cd your-git-project
+    git submodule init
+    git submodule update
+
+Updating to the latest sanitycheck:
+
+    cd your-git-project/sanitycheck/sanitycheck
+    git pull
 
 Pulling in sanitycheck with svn:externals
 -----------------------------------------
