@@ -135,7 +135,7 @@
 
 
 <cffunction name="sc_directoryExists" returntype="void" output="yes" access="public"
-		"Ensure that a directory exists">
+		hint="Ensure that a directory exists">
 	<cfargument name="dirName" type="string" required="yes" hint="must be a full path appropriate for the current platform">
 	<cfset var v = structNew()>
 
