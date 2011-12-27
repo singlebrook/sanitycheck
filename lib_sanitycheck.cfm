@@ -595,7 +595,7 @@ Begin "private" utility methods
 <cfscript> // <script>
 	numeric function sc_http(string url) {
 		var httpService = new http();
-		var httpResult = httpService.send(url=arguments.url, method="get", timeout=10, throwOnError=true);
+		var httpResult = httpService.send(url=arguments.url, method="get", timeout=10, throwOnError=false);
 		var cfhttpEquivalent = httpResult.getPrefix();
 		var responseStatus = Val(cfhttpEquivalent.statusCode);
 		param name="responseStatus" type="range" min="200" max="599";
