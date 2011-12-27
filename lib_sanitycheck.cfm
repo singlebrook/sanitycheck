@@ -503,18 +503,50 @@
 </cffunction> <!--- sc_datasourceExists --->
 
 
+<cffunction name="sc_httpContent" returntype="void" output="yes" access="public">
+	<cfargument name="path" type="string" required="yes" hint="A root-relative URL">
+	<cfargument name="secure" type="boolean" required="yes">
+	<cfargument name="redirect" type="boolean" required="yes">
+	<cfargument name="content" type="string" required="yes">
+
+	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
+	<cfset var success = false>
+	<cfset var message = "URL (#arguments.path#) HTTP response body">
+
+	<cftry>
+		<cfset var response = sc_httpRequest(url, arguments.redirect)>
+
+		<cfif response.fileContent CONTAINS arguments.content>
+			<cfset success = true>
+			<cfset message &= " contains '#arguments.content#'">
+		<cfelse>
+			<cfset message &= " does not contain '#arguments.content#'">
+		</cfif>
+
+		<cfcatch>
+			<cfset message &= " #cfcatch.message#">
+		</cfcatch>
+	</cftry>
+
+	<cfreturn sc_formatResult(success, message)>
+</cffunction> <!--- sc_httpContent --->
+
+
 <cffunction name="sc_httpStatus" returntype="void" output="yes" access="public">
 	<cfargument name="path" type="string" required="yes" hint="A root-relative URL">
 	<cfargument name="secure" type="boolean" required="yes">
+	<cfargument name="redirect" type="boolean" required="yes">
 	<cfargument name="status" type="numeric" required="yes">
 	<cfparam name="arguments.status" type="range" min="200" max="599">
 
 	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
 	<cfset var success = false>
-	<cfset var message = "URL should respond with #arguments.status#, got ">
+	<cfset var message = "URL (#arguments.path#) should respond with #arguments.status#, got ">
 
 	<cftry>
-		<cfset var responseStatus = sc_http(url)>
+		<cfset var response = sc_httpRequest(url, arguments.redirect)>
+		<cfset var responseStatus = Val(response.statusCode)>
+		<cfparam name="responseStatus" type="range" min="200" max="599">
 
 		<cfif responseStatus EQ arguments.status>
 			<cfset success = true>
@@ -526,7 +558,6 @@
 		</cfcatch>
 	</cftry>
 
-	<cfset message &= " (#arguments.path#)">
 	<cfreturn sc_formatResult(success, message)>
 </cffunction> <!--- sc_httpStatus --->
 
@@ -593,13 +624,11 @@ Begin "private" utility methods
 --->
 
 <cfscript> // <script>
-	numeric function sc_http(string url) {
+	function sc_httpRequest(string url, boolean redirect) {
 		var httpService = new http();
-		var httpResult = httpService.send(url=arguments.url, method="get", timeout=10, throwOnError=false);
+		var httpResult = httpService.send(url=arguments.url, method="get", redirect=arguments.redirect, timeout=10, throwOnError=false);
 		var cfhttpEquivalent = httpResult.getPrefix();
-		var responseStatus = Val(cfhttpEquivalent.statusCode);
-		param name="responseStatus" type="range" min="200" max="599";
-		return responseStatus;
+		return cfhttpEquivalent;
 	}
 
 	string function sc_buildURL(string path, boolean useHTTPS) {
