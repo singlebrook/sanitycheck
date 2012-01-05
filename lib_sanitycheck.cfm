@@ -6,15 +6,15 @@
 <cffunction name="sc_init" returntype="void" output="yes" access="public"
 		hint="Sets up environment for script. Checks user's authorization if running interactively.">
 	<cfset var v = structNew()>
-	
+
 	<cfif variables.sc_isInited>
 		<cfreturn>
 	</cfif>
-	
+
 	<cfif sc_isInteractive() and variables.sc_password eq "">
 		<cfthrow message="Can't run interactively without having set a password with sc_setPassword()">
 	</cfif>
-	
+
 	<style type="text/css">
 		.passed {
 			color: green;
@@ -23,28 +23,28 @@
 			color: red;
 		}
 	</style>
-	
+
 	<cfif sc_isInteractive() and (not(structKeyExists(form, 'sc_pass'))
 			or form.sc_pass neq variables.sc_password)>
-			
+
 		<!--- Some clients require SSL for forms that contain passwords - Jared 12/31/10 --->
 		<!--- To do: inspect protocol instead of port number - Jared 12/31/10 --->
 		<cfif variables.sc_requireSSL AND CGI.SERVER_PORT NEQ 443>
 			<h1 style="color:red;">On this site, sanitycheck is configured to require SSL</h1>
 			<cfabort>
 		</cfif>
-			
+
 		<form method="post">
 			Password <input type="password" name="sc_pass" />
 			<input type="submit" value="Go" /><br />
-			(If you don't know what this is, look in sc_setPassword() in this file.) 
+			(If you don't know what this is, look in sc_setPassword() in this file.)
 		</form>
 		<cfabort>
 	</cfif>
-	
+
 	<cfset variables.sc_isInited = 1>
 	<cfreturn>
-	
+
 </cffunction> <!--- sc_init --->
 
 
@@ -52,7 +52,7 @@
 		hint="Specify the minimum or exact required version of ColdFusion">
 	<cfargument name="requiredVersion" type="string" required="yes">
 	<cfset var v = structNew()>
-	
+
 	<cfif not(REFind('^[.\d]+\+?$', requiredVersion ))>
 		<cfthrow message="requiredVersion must be one or more digits and dots, optionally followed by a plus">
 	</cfif>
@@ -64,18 +64,18 @@
 		<cfset v.exactMatch = 1>
 		<cfset v.numericVersion = requiredVersion>
 	</cfif>
-	
+
 	<cfset v.checkPassed = REFind('^' & v.numericVersion, server.ColdFusion.ProductVersion)
 			or (not(v.exactMatch) and server.ColdFusion.ProductVersion gt v.numericVersion)>
-	
+
 	<cfif v.checkPassed>
 		<cfset v.msg = "Required version of ColdFusion (#requiredVersion#) was found">
 	<cfelse>
 		<cfset v.msg = "Required version of ColdFusion (#requiredVersion#) was not found. Actual version is #server.ColdFusion.ProductVersion#">
 	</cfif>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_CFVersion --->
 
 
@@ -84,14 +84,14 @@
 		hint="Ensure that a datasource is defined.">
 	<cfargument name="datasourceName" type="string" required="yes">
 	<cfset var v = structNew()>
-	
+
 	<cftry>
 		<!--- This should always throw an error due to the table name. We'll examine the error
 			to determine if the datasource exists. - leon 8/26/09 --->
 		<cfquery datasource="#datasourceName#" timeout="3">
 			select * from thereIsNoTableWithThisName
 		</cfquery>
-		
+
 		<cfcatch type="any">
 			<cfif REFindNoCase("data ?source", cfcatch.message)>
 				<cfset v.checkPassed = false>
@@ -102,9 +102,9 @@
 			</cfif>
 		</cfcatch>
 	</cftry>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_datasourceExists --->
 
 
@@ -113,7 +113,7 @@
 		hint="Ensure that ColdFusion has a default SMTP server (useful if your app doesn't specify one).">
 	<cfset var v = structNew()>
 
-	
+
 	<cftry>
 		<cfmail from="blackhole@singlebrook.com" to="blackhole@singlebrook.com" subject=""></cfmail>
 		<cfset v.checkPassed = true>
@@ -130,7 +130,7 @@
 	</cftry>
 
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_defaultSMTPServerDefined --->
 
 
@@ -152,7 +152,7 @@
 			<cfset v.msg = "Unable to verify that directory (#arguments.dirName#) exists because: #cfcatch.message#">
 		</cfcatch>
 	</cftry>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
 </cffunction> <!--- sc_directoryExists --->
 
@@ -160,37 +160,37 @@
 <cffunction name="sc_dirIsWritable_boolean" returntype="boolean" output="no" access="public"
 		hint="Checks to see if a directory is writable by creating and then deleting a test file.">
 	<cfargument name="dir" type="string" required="yes" hint="A fully-qualified directory path">
-	
+
 	<cfset var v = structNew()>
 	<cfset v.tempFileName = "ws854y7f.tmp">
-	
+
 	<!--- Standardize slashes - leon 11/13/09 --->
 	<cfset dir = replace(dir, '\', '/', 'all')>
 	<!--- Trim trailing slash - leon 11/13/09 --->
 	<cfset dir = REReplace(dir, '/$', '')>
-	
+
 	<cfset v.tempFilePath = "#dir#/#v.tempFileName#">
-	
+
 	<cftry>
 		<cfif fileExists(v.tempFilePath)>
 			<cffile action="delete" file="#v.tempFilePath#">
 		</cfif>
-	
+
 		<cffile action="write" file="#v.tempFilePath#" output="Temp file created by sanitycheck.sc_dirIsWritable()">
-	
+
 		<cfif fileExists(v.tempFilePath)>
 			<cffile action="delete" file="#v.tempFilePath#">
 		</cfif>
-		
+
 		<cfset v.itsWritable = 1>
-		
+
 		<cfcatch type="any">
 			<cfset v.itsWritable = 0>
 		</cfcatch>
-	</cftry>	
-	
+	</cftry>
+
 	<cfreturn v.itsWritable>
-	
+
 </cffunction> <!--- sc_dirIsWritable_boolean --->
 
 
@@ -198,13 +198,13 @@
 <cffunction name="sc_dirIsWritable" returntype="void" output="yes" access="public"
 		hint="Checks to see if a directory is writable by creating and then deleting a test file.">
 	<cfargument name="dir" type="string" required="yes" hint="A fully-qualified directory path">
-	
+
 	<cfif sc_dirIsWritable_boolean(dir)>
 		<cfset sc_FormatResult(1, "Directory is writable (#dir#)")>
 	<cfelse>
 		<cfset sc_FormatResult(0, "Directory is not writable (#dir#)")>
 	</cfif>
-	
+
 </cffunction> <!--- sc_dirIsWritable --->
 
 
@@ -214,7 +214,7 @@
 	<cfargument name="args" type="string" required="no" default="Arguments to make executable exit quickly (e.g. '-c exit' for bash)" />
 	<cfargument name="timeout" type="numeric" required="no" default="5" hint="in seconds" />
 	<cfset var v = structNew() />
-	
+
 	<cftry>
 		<cfexecute name="#fullPath#" timeout="#timeout#" arguments="#args#" />
 		<cfset v.checkPassed = true />
@@ -231,9 +231,9 @@
 			<cfrethrow />
 		</cfcatch>
 	</cftry>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_fileExists --->
 
 
@@ -241,7 +241,7 @@
 		hint="Ensure that a file exists. Useful for config files that aren't kept in source control.">
 	<cfargument name="fileName" type="string" required="yes" hint="a fully-qualified path" />
 	<cfset var v = structNew()>
-	
+
 	<cfif fileExists(fileName)>
 		<cfset v.checkPassed = true>
 		<cfset v.msg = "File (#filename#) exists">
@@ -249,9 +249,9 @@
 		<cfset v.checkPassed = false>
 		<cfset v.msg = "File (#filename#) does not exist">
 	</cfif>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_fileExists --->
 
 
@@ -260,15 +260,15 @@
 		hint="Checks to see if a file is writable by appending an empty string to it if it exists,
 			or by checking the dir for writability if it doesn't.">
 	<cfargument name="file" type="string" required="yes" hint="A fully-qualified file path">
-	
+
 	<cfset var v = structNew()>
-	
+
 	<!--- Standardize slashes - leon 11/13/09 --->
 	<cfset file = replace(file, '\', '/', 'all')>
-	
+
 	<!--- Make sure we're dealing with an absolute file path - leon 6/11/10 --->
 	<cfset file = expandPath(file)>
-	
+
 	<cfif fileExists(file)>
 		<!--- Try to append an empty string to the file - leon 12/17/09 --->
 		<cftry>
@@ -289,9 +289,9 @@
 			<cfset v.msg = "File does not exist, and dir is not writable (#file#)">
 		</cfif>
 	</cfif>
-	
+
 	<cfset sc_FormatResult(v.itsWritable, v.msg)>
-	
+
 </cffunction> <!--- sc_fileIsWritable --->
 
 
@@ -300,11 +300,11 @@
 		hint="Outputs a styled message is running interactively or writes to a log otherwise.">
 	<cfargument name="passed" type="boolean" required="yes">
 	<cfargument name="message" type="string" required="yes">
-	
+
 	<cfset var v = structNew()>
 
 	<cfset sc_init()>
-	
+
 	<cfif sc_isInteractive()>
 		<cfoutput>
 		<div class="#iif(passed, de('passed'), de('failed'))#">
@@ -316,28 +316,28 @@
 		<!--- Not interactive - leon 8/11/09 --->
 		<cflog file="#variables.sc_logfile#" text="#iif(passed, de('PASS'), de('FAIL'))#: #message#">
 	</cfif>
-			
-	
+
+
 </cffunction> <!--- sc_FormatResult --->
 
 
 <cffunction name="sc_isInteractive" returntype="boolean" output="no" access="public"
-		hint="Checks to see if this script is being run directly or is being used as 
+		hint="Checks to see if this script is being run directly or is being used as
 			part of an Application.cfm or Application.cfc">
 	<cfset var v = structNew()>
-	
+
 	<!--- <cfdump var="#GetCurrentTemplatePath()#">
 	<cfdump var="#cgi.script_name#">
 	<cfabort> - leon 8/11/09 --->
-	
+
 	<cfset v.templatePathWithNormalSlashes = replace(getCurrentTemplatePath(), '\', '/', 'all')>
-	
+
 	<cfif cgi.script_name contains listLast(v.templatePathWithNormalSlashes, '/')>
 		<cfreturn true>
 	<cfelse>
 		<cfreturn false>
 	</cfif>
-	
+
 </cffunction> <!--- sc_isInteractive --->
 
 
@@ -345,7 +345,7 @@
 	If an MTH is configured, and the mapping doesn't exist, the ExpandPath
 	calls return some strange result that includes the MTH path instead of returning the mapping
 	appended to the document root. I can't figure out how to programmatically determine what the
-	MTH is, so I'm sure how to check for this condition. The symptom of the bug is that this 
+	MTH is, so I'm sure how to check for this condition. The symptom of the bug is that this
 	function passes even if the mapping doesn't exist. - leon --->
 <cffunction name="sc_mappingExists" returntype="void" output="yes" access="public"
 		hint="Ensure that a mapping is defined. This function is a little buggy. We highly recommend
@@ -358,12 +358,12 @@
 	<cfif Left(mappingName, 1) neq '/'>
 		<cfset mappingName = '/' & mappingName>
 	</cfif>
-	
+
 	<!--- Get the absolute path, trying to use the mapping.  Note that ExpandPath()
 	uses the mappings defined in the ColdFusion Administrator.
 	If the mapping is defined, we expect an abs. path to the DocumentRoot - Jared 1/19/10 --->
 	<cfset v.absPathViaMapping = ExpandPath(mappingName)>
-	
+
 	<!--- If the mapping is not defined, ExpandPath() will return a path with the
 	mapping appended to the DocumentRoot. For example: DocumentRoot/mapping - Jared 1/19/10 --->
 	<cfset v.absPathErroneous = ExpandPath('/') & Right(mappingName, Len(mappingName) - 1)>
@@ -377,27 +377,27 @@
 	<cfif v.absPathViaMapping EQ v.absPathErroneous>
 		<cfset v.checkPassed = false>
 		<cfset v.msg = "Mapping (#mappingName#) does not exist">
-	
+
 	<!--- Else, success.  The mapping exists --->
 	<cfelse>
 		<cfset v.checkPassed = true>
 		<cfset v.msg = "Mapping (#mappingName#) exists">
 	</cfif>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_mappingExists --->
-	
+
 
 <cffunction name="sc_scheduledTaskExists" returntype="void" output="yes" access="public"
 		hint="Ensure that a scheduled task exists.">
 	<cfargument name="taskURL" type="string" required="yes" hint="A root-relative URL for the task to be executed">
 	<cfargument name="useHTTPS" type="boolean" required="no" default="no" hint="Turn on only if site requires SSL">
-	
+
 	<cfset var v = structNew()>
 
 	<cfset v.fqURL = "http#iif(useHTTPS,de('s'),de(''))#://#cgi.server_name##taskURL#">
-	
+
 	<cfobject type="java" action="Create" name="v.objFactory" class="coldfusion.server.ServiceFactory">
 
 	<cfset v.arTasks = v.objFactory.CronService.listAll()>
@@ -409,9 +409,9 @@
 			<cfbreak>
 		</cfif>
 	</cfloop>
-	
+
 	<cfset sc_formatResult(v.foundTask, "Scheduled task (#v.fqURL#) was #iif(v.foundTask,de(''),de('not'))# found")>
-	
+
 </cffunction> <!--- sc_scheduledTaskExists --->
 
 
@@ -420,9 +420,9 @@
 		hint="Sets the access password for running the script interactively">
 	<cfargument name="pwd" type="string" required="yes">
 	<cfset var v = structNew()>
-	
+
 	<cfset sc_password = pwd>
-	
+
 </cffunction> <!--- sc_setPassword --->
 
 
@@ -445,7 +445,7 @@
 	<cfelse>
 		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_siteHasSSL()">
 	</cfif>
-	
+
 </cffunction> <!--- sc_siteHasSSL --->
 
 
@@ -456,7 +456,7 @@
 	<cfargument name="datasourceName" type="string" required="yes">
 	<cfargument name="tableName" type="string" required="yes">
 	<cfset var v = structNew()>
-	
+
 	<!--- Don't try to pull any data in case the table referenced is large - leon 3/29/10 --->
 	<cftry>
 
@@ -497,11 +497,69 @@
 			</cftry>
 		</cfcatch>
 	</cftry>
-	
+
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
-	
+
 </cffunction> <!--- sc_datasourceExists --->
 
+
+<cffunction name="sc_httpContent" returntype="void" output="yes" access="public">
+	<cfargument name="path" type="string" required="yes" hint="A root-relative URL">
+	<cfargument name="secure" type="boolean" required="yes">
+	<cfargument name="redirect" type="boolean" required="yes">
+	<cfargument name="content" type="string" required="yes">
+
+	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
+	<cfset var success = false>
+	<cfset var message = "URL (#arguments.path#) HTTP response body">
+
+	<cftry>
+		<cfset var response = sc_httpRequest(url, arguments.redirect)>
+
+		<cfif response.fileContent CONTAINS arguments.content>
+			<cfset success = true>
+			<cfset message &= " contains '#arguments.content#'">
+		<cfelse>
+			<cfset message &= " does not contain '#arguments.content#'">
+		</cfif>
+
+		<cfcatch>
+			<cfset message &= " #cfcatch.message#">
+		</cfcatch>
+	</cftry>
+
+	<cfreturn sc_formatResult(success, message)>
+</cffunction> <!--- sc_httpContent --->
+
+
+<cffunction name="sc_httpStatus" returntype="void" output="yes" access="public">
+	<cfargument name="path" type="string" required="yes" hint="A root-relative URL">
+	<cfargument name="secure" type="boolean" required="yes">
+	<cfargument name="redirect" type="boolean" required="yes">
+	<cfargument name="status" type="numeric" required="yes">
+	<cfparam name="arguments.status" type="range" min="200" max="599">
+
+	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
+	<cfset var success = false>
+	<cfset var message = "URL (#arguments.path#) should respond with #arguments.status#, got ">
+
+	<cftry>
+		<cfset var response = sc_httpRequest(url, arguments.redirect)>
+		<cfset var responseStatus = Val(response.statusCode)>
+		<cfparam name="responseStatus" type="range" min="200" max="599">
+
+		<cfif responseStatus EQ arguments.status>
+			<cfset success = true>
+		</cfif>
+		<cfset message &= responseStatus>
+
+		<cfcatch>
+			<cfset message &= " #cfcatch.message#">
+		</cfcatch>
+	</cftry>
+
+	<cfreturn sc_formatResult(success, message)>
+</cffunction> <!--- sc_httpStatus --->
 
 
 <cffunction name="sc_urlOK" returntype="void" output="yes" access="public"
@@ -513,8 +571,8 @@
 
 	<cfset var v = structNew()>
 	<cfset var cfhttp = "">
-	
-	<cfset v.fqURL = "http#iif(useHTTPS,de('s'),de(''))#://#cgi.server_name##theURL#">
+
+	<cfset v.fqURL = sc_buildURL(theURL, useHTTPS)>
 
 	<cftry>
 		<cfhttp url="#v.fqURL#" timeout="10" throwonerror="no">
@@ -534,7 +592,7 @@
 	<cfelse>
 		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_urlOK()">
 	</cfif>
- 	
+
 </cffunction> <!--- sc_urlOK --->
 
 
@@ -571,7 +629,7 @@
 		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_urlOK()">
 	</cfif>
  	
-</cffunction> <!--- sc_urlOK --->
+</cffunction> <!--- sc_urlProtected --->
 
 
 <cffunction name="sc_verityCollectionExists" returntype="void" output="yes" access="public"
@@ -585,12 +643,31 @@
 			<cfreturn sc_formatResult(false, "Verity Collection (#collectionName#) could not be found. The ColdFusion Search service is not available.")>
 		</cfcatch>
 	</cftry>
-	
+
 	<cfif listFindNoCase(valueList(rsCollections.name), collectionName)>
 		<cfreturn sc_formatResult(true, "Verity Collection (#collectionName#) exists")>
 	<cfelse>
 		<cfreturn sc_formatResult(false, "Verity Collection (#collectionName#) does not exist")>
 	</cfif>
-	
-	
+
+
 </cffunction> <!--- sc_verityCollectionExists --->
+
+<!---
+===============================
+Begin "private" utility methods
+===============================
+--->
+
+<cfscript> // <script>
+	function sc_httpRequest(string url, boolean redirect) {
+		var httpService = new http();
+		var httpResult = httpService.send(url=arguments.url, method="get", redirect=arguments.redirect, timeout=10, throwOnError=false);
+		var cfhttpEquivalent = httpResult.getPrefix();
+		return cfhttpEquivalent;
+	}
+
+	string function sc_buildURL(string path, boolean useHTTPS) {
+		return "http#iif(arguments.useHTTPS,de('s'),de(''))#://#cgi.server_name##arguments.path#";
+	}
+</cfscript> <!--- </script> --->
