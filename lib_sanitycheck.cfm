@@ -512,19 +512,20 @@
 	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
 	<cfset var success = false>
 	<cfset var message = "URL (#arguments.path#) HTTP response body">
+	<cfset var response = "">
 
 	<cftry>
-		<cfset var response = sc_httpRequest(url, arguments.redirect)>
+		<cfset response = sc_httpRequest(url, arguments.redirect)>
 
 		<cfif response.fileContent CONTAINS arguments.content>
 			<cfset success = true>
-			<cfset message &= " contains '#arguments.content#'">
+			<cfset message = message & " contains '#arguments.content#'">
 		<cfelse>
-			<cfset message &= " does not contain '#arguments.content#'">
+			<cfset message = message & " does not contain '#arguments.content#'">
 		</cfif>
 
 		<cfcatch>
-			<cfset message &= " #cfcatch.message#">
+			<cfset message = message & " #cfcatch.message#">
 		</cfcatch>
 	</cftry>
 
@@ -537,24 +538,30 @@
 	<cfargument name="secure" type="boolean" required="yes">
 	<cfargument name="redirect" type="boolean" required="yes">
 	<cfargument name="status" type="numeric" required="yes">
-	<cfparam name="arguments.status" type="range" min="200" max="599">
 
 	<cfset var url = sc_buildURL(arguments.path, arguments.secure)>
 	<cfset var success = false>
 	<cfset var message = "URL (#arguments.path#) should respond with #arguments.status#, got ">
+	<cfset var response = "">
+	<cfset var responseStatus = "">
+
+	<!--- Validate status code - Jared 2012-01-06 --->
+	<cfif arguments.status LT 200 OR arguments.status GT 599>
+		<cfthrow message="Invalid status code">
+	</cfif>
 
 	<cftry>
-		<cfset var response = sc_httpRequest(url, arguments.redirect)>
-		<cfset var responseStatus = Val(response.statusCode)>
+		<cfset response = sc_httpRequest(url, arguments.redirect)>
+		<cfset responseStatus = Val(response.statusCode)>
 		<cfparam name="responseStatus" type="range" min="200" max="599">
 
 		<cfif responseStatus EQ arguments.status>
 			<cfset success = true>
 		</cfif>
-		<cfset message &= responseStatus>
+		<cfset message = message & responseStatus>
 
 		<cfcatch>
-			<cfset message &= " #cfcatch.message#">
+			<cfset message = message & " #cfcatch.message#">
 		</cfcatch>
 	</cftry>
 
@@ -568,6 +575,9 @@
 
 	<cfargument name="theURL" type="string" required="yes" hint="A root-relative URL">
 	<cfargument name="useHTTPS" type="boolean" required="no" default="no" hint="Turn on only if site requires SSL">
+
+	<!--- TODO: This should be rewritten to use sc_httpStatus, but that method is
+		unfortunately compatible only with CF9+ --->
 
 	<cfset var v = structNew()>
 	<cfset var cfhttp = "">
@@ -614,7 +624,6 @@
 		<cfreturn sc_formatResult(false, "Verity Collection (#collectionName#) does not exist")>
 	</cfif>
 
-
 </cffunction> <!--- sc_verityCollectionExists --->
 
 <!---
@@ -623,15 +632,22 @@ Begin "private" utility methods
 ===============================
 --->
 
-<cfscript> // <script>
-	function sc_httpRequest(string url, boolean redirect) {
-		var httpService = new http();
-		var httpResult = httpService.send(url=arguments.url, method="get", redirect=arguments.redirect, timeout=10, throwOnError=false);
-		var cfhttpEquivalent = httpResult.getPrefix();
-		return cfhttpEquivalent;
-	}
+<cffunction name="sc_httpRequest" output="no" access="public">
+	<cfargument name="url" type="string" required="yes">
+	<cfargument name="redirect" type="boolean" required="yes">
+	<cfset var httpResult = "">
+	<cfhttp url = "#arguments.url#"
+		method = "get"
+		redirect = "#arguments.redirect#"
+		timeout = 10
+		throwOnError = false
+		result = httpResult>
+	<cfreturn httpResult>
+</cffunction> <!--- sc_httpRequest --->
 
-	string function sc_buildURL(string path, boolean useHTTPS) {
-		return "http#iif(arguments.useHTTPS,de('s'),de(''))#://#cgi.server_name##arguments.path#";
-	}
-</cfscript> <!--- </script> --->
+
+<cffunction name="sc_buildURL" returntype="string" output="no" access="public">
+	<cfargument name="path" type="string" required="yes">
+	<cfargument name="useHTTPS" type="boolean" required="yes">
+	<cfreturn "http#iif(arguments.useHTTPS,de('s'),de(''))#://#cgi.server_name##arguments.path#">
+</cffunction> <!--- sc_buildURL --->
