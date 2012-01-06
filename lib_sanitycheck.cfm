@@ -533,6 +533,7 @@
 </cffunction> <!--- sc_httpContent --->
 
 
+<!--- TODO: recreate the private methods that this method requires (sc_httpRequest) --->
 <cffunction name="sc_httpStatus" returntype="void" output="yes" access="public">
 	<cfargument name="path" type="string" required="yes" hint="A root-relative URL">
 	<cfargument name="secure" type="boolean" required="yes">
@@ -545,7 +546,6 @@
 	<cfset var response = "">
 	<cfset var responseStatus = "">
 
-	<!--- Validate status code - Jared 2012-01-06 --->
 	<cfif arguments.status LT 200 OR arguments.status GT 599>
 		<cfthrow message="Invalid status code">
 	</cfif>
@@ -618,7 +618,6 @@
 
 	<cfset var v = structNew()>
 	<cfset var cfhttp = "">
-
 	<cfset v.fqURL = "http#iif(useHTTPS,de('s'),de(''))#://#cgi.server_name##theURL#">
 
 	<cftry>
@@ -641,7 +640,6 @@
 	<cfelse>
 		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_urlOK()">
 	</cfif>
-
 </cffunction> <!--- sc_urlProtected --->
 
 
