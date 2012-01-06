@@ -606,6 +606,45 @@
 </cffunction> <!--- sc_urlOK --->
 
 
+<cffunction name="sc_urlProtected" returntype="void" output="yes" access="public"
+		hint="Ensure that a '401 Authorization Required' status code is returned for a given root-relative URL.
+			This can be used to check whether a webserver-based authentication is in place and supported.">
+
+	<cfargument name="theURL" type="string" required="yes" hint="A root-relative URL">
+	<cfargument name="useHTTPS" type="boolean" required="no" default="no" hint="Turn on only if site requires SSL">
+
+	<!--- TODO: This should be rewritten to use sc_httpStatus, but that method is
+		unfortunately compatible only with CF9+ --->
+
+	<cfset var v = structNew()>
+	<cfset var cfhttp = "">
+
+	<cfset v.fqURL = "http#iif(useHTTPS,de('s'),de(''))#://#cgi.server_name##theURL#">
+
+	<cftry>
+		<cfhttp url="#v.fqURL#" timeout="10" throwonerror="no">
+		<cfcatch type="any">
+			<cfreturn sc_formatResult(false, "URL is not protected (#v.fqURL# - #cfcatch.message# - #cfcatch.detail#")>
+		</cfcatch>
+	</cftry>
+
+	<cfif cfhttp.statusCode eq "401 Authorization Required">
+		<cfreturn sc_formatResult(true, "URL is Protected (#v.fqURL#)")>
+	<cfelseif cfhttp.statusCode contains "Connection Failure">
+		<cfreturn sc_formatResult(false, "URL is not OK (#v.fqURL# - #cfhttp.errorDetail#")>
+	<cfelseif cfhttp.statusCode eq "200 OK">
+		<cfreturn sc_formatResult(false, "URL is not protected - returned '200 OK' (#v.fqURL#)")>
+	<cfelseif cfhttp.statusCode eq "403 Forbidden">
+		<cfreturn sc_formatResult(false, "URL returns '403 Forbidden' (#v.fqURL#)")>
+	<cfelseif cfhttp.statusCode eq "404 Not Found">
+		<cfreturn sc_formatResult(false, "URL returns '404 Not Found' (#v.fqURL#)")>
+	<cfelse>
+		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_urlOK()">
+	</cfif>
+
+</cffunction> <!--- sc_urlProtected --->
+
+
 <cffunction name="sc_verityCollectionExists" returntype="void" output="yes" access="public"
 		hint="Ensure that a Verity collection is defined.">
 	<cfargument name="collectionName" type="string" required="yes">
