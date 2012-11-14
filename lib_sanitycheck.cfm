@@ -228,7 +228,6 @@
 			<cfelse>
 				<cfset v.msg = "An unknown problem occurred checking the existence of executable (#fullPath#)" />
 			</cfif>
-			<cfrethrow />
 		</cfcatch>
 	</cftry>
 
