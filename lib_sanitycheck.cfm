@@ -79,6 +79,25 @@
 </cffunction> <!--- sc_CFVersion --->
 
 
+<cffunction name="sc_customTagAvailable" returntype="void" output="yes" access="public"
+		hint="Ensure that a custom tag is available.">
+	<cfargument name="customTagName" type="string" required="yes" hint="Exclude the leading cf_">
+	<cfset var v = structNew()>
+
+	<cftry>
+		<cfmodule name="#customTagName#">
+		<cfset v.checkPassed = true />
+		<cfset v.msg = "Custom tag #customTagName# was found">
+		<cfcatch type="coldfusion.tagext.lang.ModuleTag$CannotOpenCfmlException">
+			<cfset v.checkPassed = false />
+			<cfset v.msg = "Custom tag #customTagName# was not found">
+		</cfcatch>
+	</cftry>
+
+	<cfset sc_FormatResult(v.checkPassed, v.msg)>
+
+</cffunction> <!--- sc_customTagAvailable --->
+
 
 <cffunction name="sc_datasourceExists" returntype="void" output="yes" access="public"
 		hint="Ensure that a datasource is defined.">
