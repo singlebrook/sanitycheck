@@ -85,12 +85,18 @@
 	<cfset var v = structNew()>
 
 	<cftry>
-		<cfmodule name="#customTagName#">
 		<cfset v.checkPassed = true />
 		<cfset v.msg = "Custom tag #customTagName# was found">
+		<cfmodule name="#customTagName#">
+
 		<cfcatch type="coldfusion.tagext.lang.ModuleTag$CannotOpenCfmlException">
 			<cfset v.checkPassed = false />
 			<cfset v.msg = "Custom tag #customTagName# was not found">
+		</cfcatch>
+
+		<cfcatch type="any">
+			<!--- Other errors are likely to occur (e.g. missing end tag, missing params, etc.)
+				We don't care about those. --->
 		</cfcatch>
 	</cftry>
 
