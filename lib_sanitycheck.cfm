@@ -48,6 +48,24 @@
 </cffunction> <!--- sc_init --->
 
 
+<cffunction name="sc_assertEqual" returntype="void" output="yes" access="public"
+		hint="General purpose assertion">
+	<cfargument name="string1" type="string" required="yes">
+	<cfargument name="string2" type="string" required="yes">
+	<cfset var v = structNew()>
+
+	<cfset v.success = (string1 eq string2)>
+	<cfif v.success>
+		<cfset v.msg = "#string1# is equal to #string2#">
+	<cfelse>
+		<cfset v.msg = "#string1# is not equal to #string2#">
+	</cfif>
+
+	<cfset sc_FormatResult(string1 eq string2, v.msg)>
+
+</cffunction> <!--- sc_assertEqual --->
+
+
 <cffunction name="sc_CFVersion" returntype="void" output="yes" access="public"
 		hint="Specify the minimum or exact required version of ColdFusion">
 	<cfargument name="requiredVersion" type="string" required="yes">
