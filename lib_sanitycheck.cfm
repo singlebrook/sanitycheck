@@ -108,13 +108,21 @@
 		<cfmodule name="#customTagName#">
 
 		<cfcatch type="coldfusion.tagext.lang.ModuleTag$CannotOpenCfmlException">
+			<!--- This is the error that Adobe ColdFusion throws --->
 			<cfset v.checkPassed = false />
 			<cfset v.msg = "Custom tag #customTagName# was not found">
 		</cfcatch>
 
 		<cfcatch type="any">
-			<!--- Other errors are likely to occur (e.g. missing end tag, missing params, etc.)
-				We don't care about those. --->
+			<cfif cfcatch.message contains "is not defined in custom tag directory">
+			<!--- This is the error that Railo throws --->
+				<cfset v.checkPassed = false />
+				<cfset v.msg = "Custom tag #customTagName# was not found">
+			</cfif>
+
+			<!--- Other errors are likely to occur when invoking the custom tag
+			(e.g. missing end tag, missing params, etc). We don't care about those,
+			so just swallow them. --->
 		</cfcatch>
 	</cftry>
 
