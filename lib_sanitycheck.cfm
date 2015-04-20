@@ -115,7 +115,7 @@
 
 		<cfcatch type="any">
 			<cfif cfcatch.message contains "is not defined in custom tag directory">
-			<!--- This is the error that Railo throws --->
+			<!--- This is the error that Railo/Lucee throws --->
 				<cfset v.checkPassed = false />
 				<cfset v.msg = "Custom tag #customTagName# was not found">
 			</cfif>
