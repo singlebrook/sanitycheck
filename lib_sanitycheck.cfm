@@ -83,13 +83,16 @@
 		<cfset v.numericVersion = requiredVersion>
 	</cfif>
 
-	<cfset v.checkPassed = REFind('^' & v.numericVersion, server.ColdFusion.ProductVersion)
-			or (not(v.exactMatch) and server.ColdFusion.ProductVersion gt v.numericVersion)>
+	<cfset v.actualVersion = Replace(server.ColdFusion.ProductVersion, ',', '.', 'all')>
+	<cfset v.actualMajorVersion = ListFirst(v.actualVersion, '.')>
+
+	<cfset v.checkPassed = REFind('^' & v.numericVersion, v.actualVersion)
+			or (not(v.exactMatch) and v.actualMajorVersion gt v.numericVersion)>
 
 	<cfif v.checkPassed>
 		<cfset v.msg = "Required version of ColdFusion (#requiredVersion#) was found">
 	<cfelse>
-		<cfset v.msg = "Required version of ColdFusion (#requiredVersion#) was not found. Actual version is #server.ColdFusion.ProductVersion#">
+		<cfset v.msg = "Required version of ColdFusion (#requiredVersion#) was not found. Actual version is #v.actualVersion#">
 	</cfif>
 
 	<cfset sc_FormatResult(v.checkPassed, v.msg)>
