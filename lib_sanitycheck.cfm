@@ -222,6 +222,8 @@
 	<cfset dir = replace(dir, '\', '/', 'all')>
 	<!--- Trim trailing slash - leon 11/13/09 --->
 	<cfset dir = REReplace(dir, '/$', '')>
+	<!--- Make path absolute if it isn't already --->
+	<cfset dir = ExpandPath(dir)>
 
 	<cfset v.tempFilePath = "#dir#/#v.tempFileName#">
 
