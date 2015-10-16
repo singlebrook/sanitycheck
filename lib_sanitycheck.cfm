@@ -108,7 +108,9 @@
 	<cftry>
 		<cfset v.checkPassed = true />
 		<cfset v.msg = "Custom tag #customTagName# was found">
-		<cfmodule name="#customTagName#">
+		<cfsilent>
+			<cfmodule name="#customTagName#">
+		</cfsilent>
 
 		<cfcatch type="coldfusion.tagext.lang.ModuleTag$CannotOpenCfmlException">
 			<!--- This is the error that Adobe ColdFusion throws --->
