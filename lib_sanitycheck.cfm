@@ -455,19 +455,27 @@
 
 	<cfset v.fqURL = "http#iif(useHTTPS,de('s'),de(''))#://#cgi.server_name##taskURL#">
 
-	<cfobject type="java" action="Create" name="v.objFactory" class="coldfusion.server.ServiceFactory">
+	<cftry>
+		<cfobject type="java" action="Create" name="v.objFactory" class="coldfusion.server.ServiceFactory">
 
-	<cfset v.arTasks = v.objFactory.CronService.listAll()>
+		<cfset v.arTasks = v.objFactory.CronService.listAll()>
 
-	<cfset v.foundTask = 0>
-	<cfloop from="1" to="#arrayLen(v.arTasks)#" index="v.i">
-		<cfif v.arTasks[v.i].url eq v.fqURL>
-			<cfset v.foundTask = 1>
-			<cfbreak>
-		</cfif>
-	</cfloop>
+		<cfset v.foundTask = 0>
+		<cfloop from="1" to="#arrayLen(v.arTasks)#" index="v.i">
+			<cfif v.arTasks[v.i].url eq v.fqURL>
+				<cfset v.foundTask = 1>
+				<cfbreak>
+			</cfif>
+		</cfloop>
 
-	<cfset sc_formatResult(v.foundTask, "Scheduled task (#v.fqURL#) was #iif(v.foundTask,de(''),de('not'))# found")>
+		<cfset sc_formatResult(v.foundTask, "Scheduled task (#v.fqURL#) was #iif(v.foundTask,de(''),de('not'))# found")>
+
+		<cfcatch type="any">
+			<div>
+				Could not check for existence of scheduled task. Please ensure that <cfoutput>#v.fqURL#</cfoutput> is scheduled.
+			</div>
+		</cfcatch>
+	</cftry>
 
 </cffunction> <!--- sc_scheduledTaskExists --->
 
