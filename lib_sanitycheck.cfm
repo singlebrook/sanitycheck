@@ -274,7 +274,7 @@
 	<cfset var v = structNew() />
 
 	<cftry>
-		<cfexecute name="#fullPath#" timeout="#timeout#" arguments="#args#" />
+		<cfexecute name="#fullPath#" timeout="#timeout#" arguments="#args#" variable="v.devNull" />
 		<cfset v.checkPassed = true />
 		<cfset v.msg = "Executable (#fullPath#) exists and is runnable" />
 		<cfcatch type="any">
