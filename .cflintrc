@@ -1,0 +1,7 @@
+{
+  "rule": [],
+  "excludes": [],
+  "includes": [{ "code": "FUNCTION_TOO_COMPLEX" }],
+  "inheritParent": false,
+  "parameters": {}
+}
