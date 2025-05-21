@@ -654,13 +654,15 @@
 		</cfcatch>
 	</cftry>
 
-	<cfif cfhttp.statusCode eq "200 OK">
+	<cfset statusCodeNum = Val(cfhttp.statusCode)>
+
+	<cfif statusCodeNum eq 200>
 		<cfreturn sc_formatResult(true, "URL is OK (#v.fqURL#)")>
 	<cfelseif cfhttp.statusCode contains "Connection Failure">
 		<cfreturn sc_formatResult(false, "URL is not OK (#v.fqURL# - #cfhttp.errorDetail#")>
-	<cfelseif cfhttp.statusCode eq "403 Forbidden">
+	<cfelseif statusCodeNum eq 403 >
 		<cfreturn sc_formatResult(false, "URL returns '403 Forbidden' (#v.fqURL#)")>
-	<cfelseif cfhttp.statusCode eq "404 Not Found">
+	<cfelseif statusCodeNum eq 404>
 		<cfreturn sc_formatResult(false, "URL returns '404 Not Found' (#v.fqURL#)")>
 	<cfelse>
 		<cfthrow message="Unhandled statuscode (#cfhttp.statusCode#) in sc_urlOK()">
